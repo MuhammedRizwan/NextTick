@@ -35,7 +35,7 @@ adminRoute.get('/unlistUser',adminAuth.islogin,adminController.listUser)
 
 
 
-// Add Category
+
 adminRoute.get("/category",adminAuth.islogin,categoryController.loadCategory);
 adminRoute.get("/addCategory",adminAuth.islogin, categoryController.loadCategoryform);
 adminRoute.post("/addCategory",adminAuth.islogin,categoryController.addCategory);
@@ -46,8 +46,6 @@ adminRoute.get('/unlistCategory',adminAuth.islogin,categoryController.unlistCate
 
 
 
-
-//Add Products
 adminRoute.get("/products",adminAuth.islogin, productController.loadProducts)
 adminRoute.get("/addproduct",adminAuth.islogin, productController.loadProductForm)
 adminRoute.post("/addproduct",multer.uploadProduct.array('image'), productController.addProduct)
@@ -58,16 +56,15 @@ adminRoute.get("/removeImage",adminAuth.islogin,productController.removeImage)
 
 
 
-// All Orders
 adminRoute.get("/allOrder",adminAuth.islogin,adminOrderController.listUserOrders)
 adminRoute.get("/orderDetails",adminAuth.islogin,adminOrderController.listOrderDetails)
 adminRoute.get("/orderStatus",adminAuth.islogin,adminOrderController.orderStatusChange)
 adminRoute.get("/salesReport",adminAuth.islogin,adminOrderController.loadSalesReport)
+adminRoute.get('/salesReport/downloadPDF',adminAuth.islogin,adminOrderController.downloadSalesReportPDF);
 adminRoute.get('/refundOrder',adminAuth.islogin,orderController.returnOrder)
 adminRoute.get("/transactionList",adminAuth.islogin,adminOrderController.transactionList)
 
 
-//Coupon
 adminRoute.get("/couponAdd",adminAuth.islogin,couponController.loadCoupon)
 adminRoute.get("/couponList",adminAuth.islogin,couponController.loadCouponList)
 adminRoute.get("/couponEdit",adminAuth.islogin,couponController.loadEditCoupon );
@@ -77,7 +74,6 @@ adminRoute.get("/couponDetails",adminAuth.islogin,couponController.coupoonDetail
 adminRoute.post("/couponAdd",couponController.addCoupon);
 
 
-//Offer
 adminRoute.get("/addOffer",adminAuth.islogin,offerController.loadOfferAdd);
 adminRoute.get("/offerList",adminAuth.islogin,offerController.OfferList);
 adminRoute.get("/offerEdit", adminAuth.islogin,offerController.loadOfferEdit);
@@ -86,9 +82,6 @@ adminRoute.post("/addOffer", offerController.addOffer);
 adminRoute.post("/editOffer",adminAuth.islogin,offerController.editOffer);
 
 
-// Banner Routes
-
-// get
 adminRoute.get("/bannerAdd", adminAuth.islogin, bannerController.loadBannerAdd);
 adminRoute.get("/bannerList", adminAuth.islogin, bannerController.bannerList);
 adminRoute.get("/bannerEdit", adminAuth.islogin, bannerController.loadBannerEdit);

@@ -1,161 +1,276 @@
 <style>
+    /* Coupon Card Styling */
     .couponCard {
-        outline: #39f;
-  width: 250px;
-  padding: 10px;
-  border-radius: 20px;
-  background: rgb(255, 255, 255);
-  color: #000000;
-  height: 250px;
-  display: flex;
-  position: relative;
-  align-items: center;
-  justify-content: center;
-  }
-  
-  
-  
-  .couponCard h1 {
-  font-size: 48px;
-  margin-bottom: 0px;
-  }
-  
-  .couponCard span {
-  font-size: 28px;
-  }
-  
-  .image {
-  position: absolute;
-  opacity: .1;
-  left: 0;
-  top: 0;
-  }
-  </style>
-  <%- include('../layouts/userHeader.ejs') %>
-  
-  <main class="main">
+        width: 250px;
+        height: 300px; /* Increased height for better spacing */
+        padding: 20px;
+        border-radius: 15px;
+        background: linear-gradient(135deg, #f5f7fa 0%, #e4e7eb 100%); /* Subtle gradient background */
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+        color: #333; /* Darker text for better contrast */
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        transition: transform 0.3s ease, box-shadow 0.3s ease; /* Smooth hover animation */
+        overflow: hidden;
+    }
+
+    .couponCard:hover {
+        transform: scale(1.05); /* Slight scale-up on hover */
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15); /* Enhanced shadow on hover */
+    }
+
+    .couponCard h1 {
+        font-size: 36px; /* Slightly smaller for better proportion */
+        font-weight: bold;
+        margin-bottom: 5px;
+        color: #39f; /* Highlight the discount in blue */
+    }
+
+    .couponCard span.discount-label {
+        font-size: 20px;
+        font-weight: 500;
+        margin-bottom: 10px;
+    }
+
+    .couponCard .expiry-date {
+        font-size: 14px;
+        color: #666; /* Muted color for secondary info */
+        margin-bottom: 15px;
+        text-align: center;
+    }
+
+    .couponCard .redeemed-text {
+        font-size: 16px;
+        color: #e74c3c; /* Red for redeemed status */
+        font-weight: 500;
+        margin-top: 10px;
+    }
+
+    .couponCard .code-text {
+        font-size: 14px;
+        color: #555;
+        margin-bottom: 10px;
+    }
+
+    .image {
+        position: absolute;
+        opacity: 0.05; /* Reduced opacity for better readability */
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover; /* Ensure the image fits properly */
+    }
+
+    /* Copy Button Styling */
+    .copy-coupon-btn {
+        background-color: #39f;
+        color: white;
+        border: none;
+        padding: 8px 16px;
+        border-radius: 5px;
+        font-size: 14px;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        transition: background-color 0.3s ease, transform 0.1s ease;
+    }
+
+    .copy-coupon-btn:hover {
+        background-color: #2577e5; /* Darker shade on hover */
+        transform: translateY(-2px); /* Slight lift effect */
+    }
+
+    .copy-coupon-btn:active {
+        transform: translateY(0); /* Reset on click */
+    }
+
+    /* Fade-in Animation for Cards */
+    .couponCard {
+        animation: fadeIn 0.5s ease-in-out;
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* Responsive Adjustments */
+    @media (max-width: 768px) {
+        .couponCard {
+            width: 100%;
+            max-width: 300px;
+            margin: 0 auto;
+        }
+
+        .couponContainer {
+            margin-bottom: 20px;
+        }
+    }
+
+    @media (max-width: 576px) {
+        .couponCard h1 {
+            font-size: 30px;
+        }
+
+        .couponCard span.discount-label {
+            font-size: 18px;
+        }
+
+        .couponCard .expiry-date,
+        .couponCard .code-text {
+            font-size: 12px;
+        }
+
+        .copy-coupon-btn {
+            padding: 6px 12px;
+            font-size: 12px;
+        }
+    }
+</style>
+
+<%- include('../layouts/userHeader.ejs') %>
+
+<main class="main">
     <div class="page-header breadcrumb-wrap">
-      <div class="container">
-        <div class="breadcrumb">
-          <a href="index.html" rel="nofollow">Home</a>
-          <span></span> Pages
-          <span></span> Account
+        <div class="container">
+            <div class="breadcrumb">
+                <a href="index.html" rel="nofollow">Home</a>
+                <span></span> Pages
+                <span></span> Account
+            </div>
         </div>
-      </div>
     </div>
-    <section class="pt-150 pb-150">
-      <div class="container">
-        <div class="row">
-          <div class="col-lg-12 m-auto">
+    <section class="pt-50 pb-50"> <!-- Reduced padding for better spacing -->
+        <div class="container">
             <div class="row">
-              <div class="col-md-3 col-lg-3">
-                <div class="dashboard-menu">
-                  <ul class="nav flex-column" role="tablist">
-                    <!-- <li class="nav-item">
-                                      <a class="nav-link active" id="dashboard-tab" data-bs-toggle="tab" href="#dashboard" role="tab" aria-controls="dashboard" aria-selected="false"><i class="fi-rs-settings-sliders mr-10"></i>Dashboard</a>
-                                  </li> -->
-                    <li class="nav-item">
-                      <a class="nav-link" href="/userprofile"><i class="fi-rs-user mr-10"></i>Account details</a>
-                    </li>
-                    <li class="nav-item">
-                      <a class="nav-link" href="/userAddress"><i class="fi-rs-marker mr-10"></i>My Address</a>
-                    </li>
-                    <li class="nav-item">
-                      <a class="nav-link" href="/orderSuccess"><i class="fi-rs-shopping-bag mr-10"></i>Orders</a>
-                    </li>
-                    <li class="nav-item">
-                      <a class="nav-link" href="/wishlist"><i class="fi-rs-heart mr-10"></i>Your List</a>
-                    </li>
-                  
-                    <li class="nav-item">
-                      <a class="nav-link" href="/Wallet"><i class="fi-rs-shopping-bag mr-10"></i>Wallets</a>
-                    </li>
-  
-                    <li class="nav-item">
-                      <a class="nav-link"  href="/coupon" ><i class="fi-rs-shopping-bag mr-10"></i>coupon</a>
-                    </li>
-  
-  
-                    <li class="nav-item">
-                      <a class="nav-link" href="/logout"><i class="fi-rs-sign-out mr-10"></i>Logout</a>
-                    </li>
-                  </ul>
-                </div>
-              </div>
-              <div class="col-md-9 col-lg-9 d-flex justify-content-around">
-                <div class="tab-content">                           
-  
-                    
-  
-                    <div id="tab-account" aria-labelledby="tab-account-link">
-                        <div class="row">
-                            <% if (coupon.length > 0) { for (let i = 0; i < coupon.length; i++) { %>
-                            <div class="col-lg-4 mb-3">
-                                <div class="d-flex justify-content-center couponContainer container">
-                                    <div class="d-flex couponCard card text-center">
-                                        <div class="image"><img src="https://i.imgur.com/DC94rZe.png" width="150"></div>
-                                        <h1><% if(coupon[i].type =='percentage') { %> <%= coupon[i].discount %>% <% }else{ %>₹  <%= coupon[i].discount %><%}%></h1><span class="d-block">Discount</span>
-                                        <span class="d-block text-muted" style="font-size: medium;">Expires at:- <br> <%= new Date(coupon[i].expiry).toLocaleDateString() %></span>
-                                        <% if (coupon[i].userUsed.includes(userData._id)) { %>
-                                            <p>Coupon Redeemed</p>
-                                            <% } else { %>
-                                                <div class="mt-4"><small>With Code : <%= coupon[i].code %></small></div>
-                                        <a class="copy-coupon-btn btn btn-outline-2 " data-coupon="<%= coupon[i].code %>">
-  
-                                            <span class="" style="font-size: medium;"><i class="fas fa-copy" ></i> Copy</span>
-                                        </a>
+                <div class="col-lg-12 m-auto">
+                    <div class="row">
+                        <!-- Sidebar -->
+                        <div class="col-md-3 col-lg-3 mb-4">
+                            <div class="dashboard-menu">
+                                <ul class="nav flex-column" role="tablist">
+                                    <li class="nav-item">
+                                        <a class="nav-link" href="/userprofile"><i class="fi-rs-user mr-10"></i>Account details</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link" href="/userAddress"><i class="fi-rs-marker mr-10"></i>My Address</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link" href="/orderSuccess"><i class="fi-rs-shopping-bag mr-10"></i>Orders</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link" href="/wishlist"><i class="fi-rs-heart mr-10"></i>Your List</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link" href="/Wallet"><i class="fi-rs-shopping-bag mr-10"></i>Wallets</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link active" href="/coupon"><i class="fi-rs-shopping-bag mr-10"></i>Coupon</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link" href="/logout"><i class="fi-rs-sign-out mr-10"></i>Logout</a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <!-- Coupon Content -->
+                        <div class="col-md-9 col-lg-9">
+                            <div class="tab-content">
+                                <div id="tab-account" aria-labelledby="tab-account-link">
+                                    <div class="row justify-content-center">
+                                        <% if (coupon.length > 0) { %>
+                                            <% coupon.forEach((couponItem, index) => { %>
+                                                <div class="col-lg-4 col-md-6 col-sm-12 mb-4">
+                                                    <div class="couponContainer container">
+                                                        <div class="couponCard card text-center">
+                                                            <div class="image">
+                                                                <img src="https://i.imgur.com/DC94rZe.png" alt="Coupon Background">
+                                                            </div>
+                                                            <h1>
+                                                                <% if (couponItem.type === 'percentage') { %>
+                                                                    <%= couponItem.discount %>%
+                                                                <% } else { %>
+                                                                    ₹ <%= couponItem.discount %>
+                                                                <% } %>
+                                                            </h1>
+                                                            <span class="discount-label">Discount</span>
+                                                            <span class="expiry-date">
+                                                                Expires at: <br> <%= new Date(couponItem.expiry).toLocaleDateString() %>
+                                                            </span>
+                                                            <% if (couponItem.userUsed.includes(userData._id)) { %>
+                                                                <p class="redeemed-text">Coupon Redeemed</p>
+                                                            <% } else { %>
+                                                                <div class="code-text">With Code: <%= couponItem.code %></div>
+                                                                <button class="copy-coupon-btn btn" data-coupon="<%= couponItem.code %>" aria-label="Copy coupon code <%= couponItem.code %>">
+                                                                    <i class="fas fa-copy"></i> Copy
+                                                                </button>
+                                                            <% } %>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            <% }); %>
+                                        <% } else { %>
+                                            <div class="col-12 text-center">
+                                                <p class="text-muted">No Coupons Found</p>
+                                            </div>
                                         <% } %>
                                     </div>
                                 </div>
-                                <!-- End .card-dashboard -->
                             </div>
-                            <!-- End .col-lg-6 -->
-                    
-                            <% } } else { %>
-                            <div class="col-6 col-md-4 col-xl-3">
-                                <p>No Coupon Found found</p>
-                            </div>
-                            <% } %>
-                            
                         </div>
-                    </div><!-- .End .tab-pane -->
-                    
-                    <script>
-                        // Add event listener to copy coupon code
-                        document.querySelectorAll('.copy-coupon-btn').forEach(function (button) {
-                            button.addEventListener('click', function () {
-                                const couponCode = this.dataset.coupon;
-                                copyToClipboard(couponCode);
-                            });
-                        });
-                    
-                        // Function to copy text to clipboard
-                        function copyToClipboard(text) {
-                            navigator.clipboard.writeText(text).then(function () {
-                                Swal.fire({
-                                title: 'Copied',
-                                text: 'Coupon code copied',
-                                background: '#ffffff', // Set the background color to white
-                                customClass: {
-                                  popup: 'white-background', // Add a custom class for additional styling
-                                },
-                                icon: 'success',
-                            });}).catch(function (err) {
-                                console.error('Unable to copy to clipboard', err);
-                            });
-                        }
-                    </script>
-                    
-                    
+                    </div>
                 </div>
-            </div><!-- End .col-lg-9 -->
             </div>
-          </div>
         </div>
-      </div>
-  
-  
     </section>
-  </main>
-  
-  <%- include('../layouts/userFooter.ejs') %>
+</main>
+
+<script>
+// Add event listener to copy coupon code
+document.querySelectorAll('.copy-coupon-btn').forEach(function (button) {
+    button.addEventListener('click', function () {
+        const couponCode = this.dataset.coupon;
+        copyToClipboard(couponCode);
+    });
+});
+
+// Function to copy text to clipboard
+function copyToClipboard(text) {
+    navigator.clipboard.writeText(text).then(function () {
+        Swal.fire({
+            title: 'Copied!',
+            text: 'Coupon code copied to clipboard',
+            background: '#ffffff',
+            customClass: {
+                popup: 'white-background',
+            },
+            icon: 'success',
+            timer: 1500,
+            showConfirmButton: false
+        });
+    }).catch(function (err) {
+        console.error('Unable to copy to clipboard', err);
+        Swal.fire({
+            title: 'Error',
+            text: 'Failed to copy coupon code',
+            icon: 'error',
+            timer: 1500,
+            showConfirmButton: false
+        });
+    });
+}
+</script>
+
+<%- include('../layouts/userFooter.ejs') %>

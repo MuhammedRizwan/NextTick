@@ -55,6 +55,11 @@ const orderSchema = new mongoose.Schema({
   reason: {
     type: String,
   },
+  paymentStatus: {
+    type: String,
+    enum: ["success", "failed", "Pending"],
+    default: "Pending",
+  },
   items: [
     {
       product: {
@@ -66,15 +71,9 @@ const orderSchema = new mongoose.Schema({
       price: { type: Number, required: true },
       status: {
         type: String,
-        enum: ['Confirmed', 'Pending', 'Shipped', 'Delivered','Payment Pending'],
+        enum: ['Confirmed', 'Pending', 'Shipped', 'Delivered', 'Payment Pending'],
         default: 'Confirmed',
       },
-     
-      paymentStatus: {
-        type: String,
-        enum: ["success",  "failed","Pending"],
-        default: "pending",
-    },
     },
   ],
   returnStatus: {

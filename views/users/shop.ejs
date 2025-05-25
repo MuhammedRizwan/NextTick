@@ -1,369 +1,526 @@
+<style>
+    /* Green Color Scheme */
+    :root {
+        --green: #28a745;
+        --green-dark: #218838;
+        --gray: #6c757d;
+        --light-gray: #f8f9fa;
+        --white: #fff;
+    }
+
+    /* Sidebar Styling */
+    .primary-sidebar {
+        padding: 20px;
+        background: var(--light-gray);
+        border-radius: 10px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    }
+
+    .header-search-wrapper {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .header-search-wrapper input,
+    .header-search-wrapper select {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid var(--gray);
+        border-radius: 5px;
+        font-size: 14px;
+        transition: border-color 0.3s ease;
+    }
+
+    .header-search-wrapper input:focus,
+    .header-search-wrapper select:focus {
+        border-color: var(--green);
+        outline: none;
+    }
+
+    .header-search-wrapper button {
+        background: var(--green);
+        color: var(--white);
+        border: none;
+        padding: 10px;
+        border-radius: 5px;
+        font-size: 14px;
+        font-weight: 500;
+        transition: background 0.3s ease, transform 0.1s ease;
+    }
+
+    .header-search-wrapper button:hover {
+        background: var(--green-dark);
+        transform: translateY(-2px);
+    }
+
+    /* Product Card Styling */
+    .product-cart-wrap {
+        background: var(--white);
+        border-radius: 10px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        animation: fadeIn 0.5s ease-in-out;
+        margin-bottom: 20px; /* Reduced margin */
+    }
+
+    .product-cart-wrap:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+    }
+
+    .product-img-action-wrap {
+        position: relative;
+        overflow: hidden;
+    }
+
+    .product-img img {
+        width: 100%;
+        height: 250px; /* Reduced height for shorter card */
+        object-fit: cover;
+        transition: transform 0.3s ease;
+    }
+
+    .product-img:hover img {
+        transform: scale(1.05);
+    }
+
+    .product-badges span {
+        background: var(--green);
+        color: var(--white);
+        padding: 5px 10px;
+        border-radius: 5px;
+        font-size: 12px;
+        font-weight: 500;
+    }
+
+    .sold-out-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .sold-out-message {
+        color: #dc3545;
+        font-size: 16px;
+        font-weight: bold;
+        background: var(--white);
+        padding: 5px 10px;
+        border-radius: 5px;
+    }
+
+    .product-content-wrap {
+        padding: 15px; /* Reduced padding */
+        text-align: center;
+    }
+
+    .product-category a {
+        color: var(--gray);
+        font-size: 12px;
+        text-decoration: none;
+        transition: color 0.3s ease;
+    }
+
+    .product-category a:hover {
+        color: var(--green);
+    }
+
+    .product-content-wrap h2 {
+        font-size: 16px; /* Smaller font for shorter card */
+        margin: 5px 0;
+        height: 40px; /* Fixed height for consistent alignment */
+        overflow: hidden;
+        text-overflow: ellipsis;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+    }
+
+    .product-content-wrap h2 a {
+        color: #333;
+        text-decoration: none;
+        transition: color 0.3s ease;
+    }
+
+    .product-content-wrap h2 a:hover {
+        color: var(--green);
+    }
+
+    .product-price span {
+        font-size: 16px;
+        font-weight: bold;
+        color: var(--green);
+    }
+
+    .product-price .old-price {
+        font-size: 14px;
+        color: var(--gray);
+        text-decoration: line-through;
+        margin-left: 5px;
+    }
+
+    .rating-result span.text-success {
+        background: var(--green);
+        color: var(--white);
+        padding: 2px 8px;
+        border-radius: 5px;
+        font-size: 12px;
+    }
+
+    .low-stock-message {
+        color: #dc3545;
+        font-size: 12px;
+        margin-top: 5px;
+    }
+
+    .product-action-1 {
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+        margin-top: 10px;
+    }
+
+    .action-btn {
+        background: var(--green);
+        color: var(--white);
+        border: none;
+        padding: 8px 12px;
+        border-radius: 5px;
+        font-size: 14px;
+        transition: background 0.3s ease, transform 0.1s ease;
+    }
+
+    .action-btn:hover {
+        background: var(--green-dark);
+        transform: translateY(-2px);
+    }
+
+    /* Pagination Styling */
+    .pagination .page-item .page-link {
+        color: var(--green);
+        border: 1px solid var(--green);
+        border-radius: 5px;
+        margin: 0 5px;
+        transition: background 0.3s ease, color 0.3s ease;
+    }
+
+    .pagination .page-item.active .page-link {
+        background: var(--green);
+        color: var(--white);
+        border-color: var(--green);
+    }
+
+    .pagination .page-item .page-link:hover {
+        background: var(--green);
+        color: var(--white);
+    }
+
+    /* Fade-in Animation */
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* Responsive Adjustments */
+    @media (max-width: 768px) {
+        .product-cart-wrap {
+            margin-bottom: 15px;
+        }
+
+        .product-img img {
+            height: 180px;
+        }
+
+        .product-content-wrap h2 {
+            font-size: 14px;
+            height: 36px;
+        }
+
+        .product-price span {
+            font-size: 14px;
+        }
+
+        .action-btn {
+            padding: 6px 10px;
+            font-size: 12px;
+        }
+    }
+
+    @media (max-width: 576px) {
+        .product-img img {
+            height: 160px;
+        }
+
+        .product-content-wrap h2 {
+            font-size: 13px;
+            height: 32px;
+        }
+
+        .product-price span {
+            font-size: 13px;
+        }
+
+        .action-btn {
+            padding: 5px 8px;
+            font-size: 10px;
+        }
+    }
+</style>
+
 <%- include('../layouts/userHeader.ejs') %>
+
 <main class="main">
-  <div class="container">
-    <div class="row">
-      <!-- Sidebar Section for Category and Sorting -->
-      <div class="col-lg-3">
-        <div class="primary-sidebar sticky-sidebar">
-          <form action="/shop" method="get">
-            <div class="header-search-wrapper">
-                <label for="search" class="sr-only">Search</label>
-                <input type="search" class="form-control" name="search" id="search"
-                    placeholder="Search in..." required>
-                <button type="submit" style="display: none;">Search</button>
-                <!-- Category Filter -->
-<select name="category" onchange="this.form.submit()">
-  <option value="">All Categories</option>
-  <% categories.forEach(category => { %>
-  <option value="<%= category._id %>" <%= category._id == query.category ? 'selected' : '' %>>
-    <%= category.name %>
-  </option>
-  <% }); %>
-</select>
+    <div class="container">
+        <div class="row">
+            <!-- Sidebar Section for Category and Sorting -->
+            <div class="col-lg-3">
+                <div class="primary-sidebar sticky-sidebar">
+                    <form action="/shop" method="get">
+                        <div class="header-search-wrapper">
+                            <label for="search" class="sr-only">Search</label>
+                            <input type="search" class="form-control" name="search" id="search"
+                                placeholder="Search products..." value="<%= query.search || '' %>">
+                            
+                            <!-- Category Filter -->
+                            <select name="category">
+                                <option value="">All Categories</option>
+                                <% categories.forEach(category => { %>
+                                    <option value="<%= category._id %>" <%= category._id == query.category ? 'selected' : '' %>>
+                                        <%= category.name %>
+                                    </option>
+                                <% }); %>
+                            </select>
 
-<!-- Sorting Section -->
-<select name="sort" onchange="this.form.submit()">
-  <option value="asc" <%= sort === 'asc' ? 'selected' : '' %>>Price: Low to High</option>
-  <option value="desc" <%= sort === 'desc' ? 'selected' : '' %>>Price: High to Low</option>
-</select>
+                            <!-- Sorting Section -->
+                            <select name="sort">
+                                <option value="asc" <%= sort === 'asc' ? 'selected' : '' %>>Price: Low to High</option>
+                                <option value="desc" <%= sort === 'desc' ? 'selected' : '' %>>Price: High to Low</option>
+                            </select>
 
-
-                <!-- Add a submit button -->
-                <button type="submit">Search</button>
-            </div><!-- End .header-search-wrapper -->
-        </form>
-        
-        </div>
-      </div>
-
-      <!-- Product Section -->
-      <div class="col-lg-9">
-        <div class="shop-product-fillter">
-          <div class="totall-product">
-            <p class="mt-30">We found <strong class="text-brand">688</strong> items for you!</p>
-          </div>
-          <div class="sort-by-product-area"></div>
-        </div>
-        <div id="Grid" class="row product-grid-3">
-          <% for (const product of products) { %>
-            <% if (product.stock> 0) { %>
-              <!-- Product Card for available products -->
-              <div class="col-lg-4 col-md-4 col-12 col-sm-6">
-                <div id="product" class="product-cart-wrap mb-30">
-
-
-                  <!-- Product Image -->
-                  <div class="product-img-action-wrap">
-                    <div class="product-img product-img-zoom">
-                      <a href="/singleProduct/<%= product._id%>">
-                        <img class="default-img" src="/admin-assets/imgs/productIMG/<%= product.image[0]%>"
-                          alt="<%= product.name %>" />
-                      </a>
-                    </div>
-                    <div class="product-badges product-badges-position product-badges-mrg">
-                      <span class="hot">Hot</span>
-                    </div>
-                  </div>
-                  <!-- Product Details -->
-                  <div class="product-content-wrap">
-                    <div class="product-category">
-                      <a href="shop-grid-right.html">
-                        <%=product.category.name%>
-                      </a>
-                    </div>
-                    <h2><a href="/singleProduct/<%= product._id%>">
-                        <%= product.name %>
-                      </a></h2>
-                    <!-- Add more product details as needed -->
-                    <div class="rating-result" title="90%">
-                      <span>
-                          <% if (product.discountStatus == true && new Date() <= new Date(product.discountEnd)) { %>
-                              <% const percentageOff = ((product.price - product.discount_price) / product.price) * 100; %>
-                              <span style="font-size: 16px; background-color: rgb(255, 255, 255); border-radius: 2px; padding: 5px 10px 5px 10px;" class="old-price ml-3 text-success">
-                                  - <%= percentageOff.toFixed(2) %>% OFF
-                              </span>
-                          <% } %>
-                      </span>
-                  </div>
-                  <div class="product-price">
-                      <% if (product.discountStatus && new Date() <= new Date(product.discountEnd)) { %>
-                          <span>₹<%= product.discount_price %> </span>
-                          <span class="old-price">- ₹<s><%= product.price %></s></span>
-                      <% } else { %>
-                          <span> ₹<%= product.price %></span>
-                      <% } %>
-                  </div>
-            
-
-
-                    <!-- Add the stock message based on the stock value -->
-                    <% if (product.stock <=5) { %>
-                      <div class="low-stock-message" style="color: red;">Only <%= product.stock %> left.
-                      </div>
-                      <% } %>
-
-                        <!-- Add the form for adding to cart if needed -->
-                        <form id="myForm" action="/cart" method="post">
-                          <div class="product-action-1 show">
-                            <input type="hidden" value="<%= product._id %>" name="productData_id">
-                            <input type="hidden" value="1" name="qty">
-                            <!-- Assuming you have product information available in your template -->
-                            <button type="button" aria-label="Add To Cart" class="action-btn hover-up"
-                              onclick="addToCart('<%= product.id %>', '<%= product.name %>', '₹<%= product.price %>')">
-                              <i class="fi-rs-shopping-bag-add"></i>
-                            </button>
-                            <button type="button" aria-label="Add To Wishlist" class="action-btn hover-up"
-                              onclick="addToWishlist('<%= product.id %>', '<%= product.name %>', '₹<%= product.price %>')">
-                              <i class="fi-rs-heart"></i>
-                            </button>
-                          </div>
-                        </form>
-                  </div>
+                            <!-- Submit Button -->
+                            <button type="submit">Filter</button>
+                        </div>
+                    </form>
                 </div>
-              </div>
-              <% } else { %>
-                <!-- Product Card for sold-out products -->
-                <div class="col-lg-4 col-md-4 col-12 col-sm-6">
-                  <div id="product" class="product-cart-wrap mb-30 sold-out-product">
-                    <!-- Display other information as needed, e.g., product image -->
-                    <div class="product-img-action-wrap">
-                      <div class="product-img product-img-zoom">
+            </div>
 
-                        <img class="default-img" src="/admin-assets/imgs/productIMG/<%= product.image[0]%>"
-                          alt="<%= product.name %>" />
-                        </a>
-                      </div>
-                      <div class="sold-out-overlay">
-                        <div class="sold-out-message" style="color: red;">Out Of stock</div>
-                      </div>
+            <!-- Product Section -->
+            <div class="col-lg-9">
+                <div class="shop-product-fillter">
+                    <div class="totall-product">
+                        <p class="mt-3">We found <strong style="color: var(--green);"><%= products.length %></strong> items for you!</p>
                     </div>
-                    <!-- Product Details -->
-                    <div class="product-content-wrap">
-                      <div class="product-category">
-                        <%=product.category.name%></a>
-                      </div>
-                      <h2>
-                        <%= product.name %>
-                      </h2>
-                      <div class="rating-result" title="90%">
-                        <span>
-                          <span>90%</span>
-                        </span>
-                      </div>
-                      <div class="product-price">
-                        <% if (product.discount_price) { %>
-                          <span>₹<%= product.discount_price %> </span>
-                          <span class="old-price">- ₹<s>
-                              <%= product.price %>
-                            </s></span>
-                          <% } else { %>
-                            <span class="old-price"> ₹<%= product.price %></span>
+                </div>
+                <div id="Grid" class="row product-grid-3">
+                    <% if (products.length > 0) { %>
+                        <% products.forEach(product => { %>
+                            <% if (product.stock > 0) { %>
+                                <!-- Product Card for available products -->
+                                <div class="col-lg-4 col-md-4 col-12 col-sm-6">
+                                    <div id="product" class="product-cart-wrap">
+                                        <!-- Product Image -->
+                                        <div class="product-img-action-wrap">
+                                            <div class="product-img product-img-zoom">
+                                                <a href="/singleProduct/<%= product._id %>">
+                                                    <img class="default-img" src="/admin-assets/imgs/productIMG/<%= product.image[0] %>"
+                                                        alt="<%= product.name %>" />
+                                                </a>
+                                            </div>
+                                            <div class="product-badges product-badges-position product-badges-mrg">
+                                                <span class="hot">Hot</span>
+                                            </div>
+                                        </div>
+                                        <!-- Product Details -->
+                                        <div class="product-content-wrap">
+                                            <div class="product-category">
+                                                <a href="#"><%= product.category.name %></a>
+                                            </div>
+                                            <h2><a href="/singleProduct/<%= product._id %>"><%= product.name %></a></h2>
+                                            <div class="rating-result">
+                                                <% if (product.discountStatus && new Date() <= new Date(product.discountEnd)) { %>
+                                                    <% const percentageOff = ((product.price - product.discount_price) / product.price) * 100; %>
+                                                    <span class="text-success">
+                                                        <%= percentageOff.toFixed(2) %>% OFF
+                                                    </span>
+                                                <% } %>
+                                            </div>
+                                            <div class="product-price">
+                                                <% if (product.discountStatus && new Date() <= new Date(product.discountEnd)) { %>
+                                                    <span>₹<%= product.discount_price.toFixed(2) %></span>
+                                                    <span class="old-price">₹<%= product.price.toFixed(2) %></span>
+                                                <% } else { %>
+                                                    <span>₹<%= product.price.toFixed(2) %></span>
+                                                <% } %>
+                                            </div>
+                                            <% if (product.stock <= 5) { %>
+                                                <div class="low-stock-message">Only <%= product.stock %> left</div>
+                                            <% } %>
+                                            <form action="/cart" method="post">
+                                                <div class="product-action-1 show">
+                                                    <input type="hidden" value="<%= product._id %>" name="productData_id">
+                                                    <input type="hidden" value="1" name="qty">
+                                                    <button type="button" aria-label="Add To Cart" class="action-btn hover-up"
+                                                        onclick="addToCart('<%= product._id %>', '<%= product.name %>', '<%= product.discountStatus && new Date() <= new Date(product.discountEnd) ? product.discount_price : product.price %>')">
+                                                        <i class="fi-rs-shopping-bag-add"></i>
+                                                    </button>
+                                                    <button type="button" aria-label="Add To Wishlist" class="action-btn hover-up"
+                                                        onclick="addToWishlist('<%= product._id %>', '<%= product.name %>', '<%= product.discountStatus && new Date() <= new Date(product.discountEnd) ? product.discount_price : product.price %>')">
+                                                        <i class="fi-rs-heart"></i>
+                                                    </button>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            <% } else { %>
+                                <!-- Product Card for sold-out products -->
+                                <div class="col-lg-4 col-md-4 col-12 col-sm-6">
+                                    <div id="product" class="product-cart-wrap sold-out-product">
+                                        <div class="product-img-action-wrap">
+                                            <div class="product-img product-img-zoom">
+                                                <img class="default-img" src="/admin-assets/imgs/productIMG/<%= product.image[0] %>"
+                                                    alt="<%= product.name %>" />
+                                            </div>
+                                            <div class="sold-out-overlay">
+                                                <div class="sold-out-message">Out Of Stock</div>
+                                            </div>
+                                        </div>
+                                        <div class="product-content-wrap">
+                                            <div class="product-category">
+                                                <%= product.category.name %>
+                                            </div>
+                                            <h2><%= product.name %></h2>
+                                            <div class="product-price">
+                                                <% if (product.discountStatus && new Date() <= new Date(product.discountEnd)) { %>
+                                                    <span>₹<%= product.discount_price.toFixed(2) %></span>
+                                                    <span class="old-price">₹<%= product.price.toFixed(2) %></span>
+                                                <% } else { %>
+                                                    <span class="old-price">₹<%= product.price.toFixed(2) %></span>
+                                                <% } %>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                             <% } %>
-                      </div>
-                    </div>
-                  </div>
+                        <% }); %>
+                    <% } else { %>
+                        <div class="col-12 text-center">
+                            <p class="text-muted">No products found</p>
+                        </div>
+                    <% } %>
                 </div>
+
+                <!-- Pagination Section -->
+                <% if (totalPages > 1) { %>
+                    <nav class="mt-4" aria-label="Page navigation">
+                        <ul class="pagination justify-content-center">
+                            <% if (currentPage > 1) { %>
+                                <li class="page-item">
+                                    <a class="page-link" href="?page=<%= currentPage - 1 %>&category=<%= query.category || '' %>&sort=<%= sort || '' %>&search=<%= query.search || '' %>" aria-label="Previous">
+                                        <span aria-hidden="true">«</span>
+                                    </a>
+                                </li>
+                            <% } %>
+
+                            <% for (let i = 1; i <= totalPages; i++) { %>
+                                <li class="page-item <%= i === currentPage ? 'active' : '' %>">
+                                    <a class="page-link" href="?page=<%= i %>&category=<%= query.category || '' %>&sort=<%= sort || '' %>&search=<%= query.search || '' %>">
+                                        <%= i %>
+                                    </a>
+                                </li>
+                            <% } %>
+
+                            <% if (currentPage < totalPages) { %>
+                                <li class="page-item">
+                                    <a class="page-link" href="?page=<%= currentPage + 1 %>&category=<%= query.category || '' %>&sort=<%= sort || '' %>&search=<%= query.search || '' %>" aria-label="Next">
+                                        <span aria-hidden="true">»</span>
+                                    </a>
+                                </li>
+                            <% } %>
+                        </ul>
+                    </nav>
                 <% } %>
-                  <% } %>
+            </div>
         </div>
-
-
-        <!-- Pagination Section -->
-
-        <nav class="mt-4" aria-label="Page navigation">
-          <ul class="pagination">
-            <% if (currentPage> 1) { %>
-              <li class="page-item">
-                <a class="page-link" href="?page=<%= currentPage - 1 %>" aria-label="Previous">
-                  <span aria-hidden="true">&laquo;</span>
-                </a>
-              </li>
-              <% } %>
-
-                <% for (let i=1; i <=totalPages; i++) { %>
-                  <li class="page-item <%= i === currentPage ? 'active' : '' %>">
-                    <a class="page-link" href="?page=<%= i %>">
-                      <%= i %>
-                    </a>
-                  </li>
-                  <% } %>
-
-                    <% if (currentPage < totalPages) { %>
-                      <li class="page-item">
-                        <a class="page-link" href="?page=<%= currentPage + 1 %>" aria-label="Next">
-                          <span aria-hidden="true">&raquo;</span>
-                        </a>
-                      </li>
-                      <% } %>
-          </ul>
-        </nav>
-
-      </div>
     </div>
-  </div>
 </main>
 
-<!--pagination-->
-
-
-
-
-
-
-</div>
-
-
-
-
-</div>
-</div>
-</div>
-</section>
-
-</main>
-
-
-
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/jquery.dataTables.min.css">
 <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
-<!-- Include jQuery -->
-<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
-<!-- Include jQuery UI for the slider -->
-<link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
-<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 
 <script>
-
-  document.addEventListener("DOMContentLoaded", function () {
-    const searchInput = document.getElementById("searchInput");
-    const productGrid = document.querySelector(".product-grid-3");
-    const productItems = productGrid.getElementsByClassName("product-cart-wrap");
-
-    searchInput.addEventListener("keyup", function () {
-      const searchText = searchInput.value.toLowerCase();
-
-      for (let i = 0; i < productItems.length; i++) {
-        const productName = productItems[i]
-          .getElementsByClassName("product-content-wrap")[0]
-          .getElementsByTagName("h2")[0]
-          .textContent.toLowerCase();
-
-        if (productName.includes(searchText)) {
-          productItems[i].style.display = "";
-        } else {
-          productItems[i].style.display = "none";
-        }
-      }
-    });
-  })
-
-
-
-
-
-
-
-
-</script>
-
-
-<script>
-
-  function addToCartWithValidation(id, name, price, stock) {
-    var quantity = document.getElementById('quantity_' + id).value;
-
-    // Check if the selected quantity exceeds the available stock
-    if (parseInt(quantity) > parseInt(stock)) {
-      alert('Sorry, the selected quantity exceeds the available stock.');
-    } else {
-      // Call your addToCart function with the updated parameters
-      addToCart(id, name, price, quantity);
+    function addToCart(productId, productName, productPrice) {
+        const requestData = {
+            qty: 1,
+            ID: productId
+        };
+        fetch('/cart', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(requestData),
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    window.location.href = '/cart';
+                } else {
+                    console.error('Error:', data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
     }
-  }
 
-  function addToCart(productId, productName, productPrice, quantity) {
-    // Get existing cart data from localStorage or initialize an empty array
-    const requestData = {
-      qty: 1,
-      ID: productId
-    };
-    fetch('/cart', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(requestData),
-    })
-      .then(response => response.json())
-      .then(data => {
-        if (data.success) {
-          console.log("Item added to cart successfully");
-          window.location.href = '/cart';
-        } else {
-          console.error('Error:', data.message);
-        }
-      })
+    function addToWishlist(productId) {
+        const requestData = {
+            productId: productId,
+        };
+        fetch('/addToWishlist', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(requestData),
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    window.location.href = '/wishlist';
+                } else {
+                    console.error('Error:', data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+    }
 
-  }
-
-  function addToWishlist(productId) {
-    const requestData = {
-      productId: productId,
-    };
-
-    fetch('/addToWishlist', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(requestData),
-    })
-      .then(response => response.json())
-      .then(data => {
-        if (data.success) {
-          console.log("Item added to wishlist successfully");
-
-          window.location.href = '/wishlist';
-        } else {
-          console.error('Error:', data.message);
-          // Optionally, handle error cases and show appropriate messages to the user
-        }
-      })
-      .catch(error => {
-        console.error('Error:', error);
-        // Optionally, handle other error cases
-      });
-  }
-
-</script>
-
-
-<script>
-  function changeMainImage(imageUrl) {
-    const mainImage = document.getElementById('mainImage');
-    mainImage.src = `/admin-assets/imgs/productIMG/${imageUrl}`;
-  }
-  document.querySelector('.image-zoom').addEventListener('mousemove', function (e) {
-    const { left, top, width, height } = this.getBoundingClientRect();
-    const x = (e.clientX - left) / width * 100;
-    const y = (e.clientY - top) / height * 100;
-
-    this.style.transformOrigin = `${x}% ${y}%`;
-  });
-</script>
-
-
-<script>
-  document.addEventListener('DOMContentLoaded', (event) => {
-    document.querySelector('select[name="category"]').addEventListener('change', function() {
-      this.form.submit();
+    document.addEventListener('DOMContentLoaded', () => {
+        document.querySelector('select[name="category"]').addEventListener('change', function() {
+            this.form.submit();
+        });
+        document.querySelector('select[name="sort"]').addEventListener('change', function() {
+            this.form.submit();
+        });
     });
-    document.querySelector('select[name="sort"]').addEventListener('change', function() {
-      this.form.submit();
-    });
-  });
-  </script>
-  
-
+</script>
 
 <%- include('../layouts/userFooter.ejs') %>

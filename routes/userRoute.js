@@ -60,6 +60,7 @@ userRoute.get('/deleteAddress',islogin,addressController. deleteAddress)
 //order
 userRoute.get('/orderSuccess',islogin,orderController.loadOrderDetails)
 userRoute.get('/orderDetails/:id',islogin,orderController.loadOrderHistory)
+userRoute.get('/orderDetails/:id/download-pdf',islogin, orderController.downloadOrderPDF);
 userRoute.get('/checkout',islogin, orderController.loadCheckout)
 userRoute.post("/ordercancel",islogin, orderController.cancelOrder)
 userRoute.post('/checkout',islogin,orderController.checkOutPost );

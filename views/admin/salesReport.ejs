@@ -1,6 +1,5 @@
 <%- include('../layouts/adminHeader.ejs') %>
 
-        
 <section class="content-main">
   <div class="content-header">
       <div class="dropdown">
@@ -17,8 +16,9 @@
       </div>
       <div class="row">
           <div class="col-md-12 text-right">
-              <button onclick="printContent()" class="btn btn-secondary print ms-2"><i class="icon material-icons md-print"></i> Download PDF</button>
-            
+              <a href="/admin/salesReport/downloadPDF?<%= req.query.startDate ? 'startDate=' + req.query.startDate + '&' : '' %><%= req.query.endDate ? 'endDate=' + req.query.endDate + '&' : '' %><%= req.query.status ? 'status=' + req.query.status : '' %>" class="btn btn-secondary print ms-2">
+                  <i class="icon material-icons md-print"></i> Download PDF
+              </a>
           </div>
       </div>
   </div>
@@ -39,13 +39,12 @@
                     <button type="submit" class="btn btn-primary">Show Report</button>
                 </div>
             </form>
-            
-              <form action="" method="get">
-                  <div style="display: flex; align-items: center;">
-                      <input type="text" id="searchInput" class="form-control" placeholder="Search for products...">
-                      <div class="col-md-1 col-12 me-auto mb-md-0 mb-3" style="display: flex;"></div>
-                  </div>
-              </form>
+            <form action="" method="get">
+                <div style="display: flex; align-items: center;">
+                    <input type="text" id="searchInput" class="form-control" placeholder="Search for products...">
+                    <div class="col-md-1 col-12 me-auto mb-md-0 mb-3" style="display: flex;"></div>
+                </div>
+            </form>
           </div>
       </header>
 
@@ -54,9 +53,9 @@
               <h2 class="content-title card-title">Sales Report</h2>
           </div>
 
-          <p>Total Revenue:₹ <%= totalRevenue.toFixed(2) %> </p>
-          <p>Total Sales: <%= totalSales %></p>
-          <p>Total Products Sold: <%= totalProductsSold %></p>
+          <p>Total Revenue: ₹ <%= totalRevenue.toFixed(2) %></p>
+          <p>Total Orders: <%= totalSales %></p>
+          <p>Total Items Sold: <%= totalProductsSold %></p>
 
           <table id="products" class="table">
               <thead>
@@ -67,42 +66,23 @@
                       <th scope="col">Delivery Date</th>
                       <th scope="col">Total</th>
                       <th scope="col">Status</th>
+                      <th scope="col">NUMBER OF ITEMS</th>
                       <th scope="col">Payment Method</th>
                   </tr>
               </thead>
               <tbody>
-                  <% orders.forEach((order) => {
-                      order.items.forEach((item) => { %>
-                        <% if (order.status === 'Delivered') { %>
-                            <tr>
-                                <td><%= order._id %></td>
-                                <td><%= order.user.name %></td>
-                                <td><%= new Date(order.orderDate).toLocaleDateString() %></td>
-                                <td><%= new Date(order.deliveryDate).toLocaleDateString() %></td>
-                                <td><%= order.totalAmount %></td>
-                                <td><%= order.status %></td>
-                                <td><%= order.paymentMethod %></td>
-                                <td>
-                                    <% if (order.items && order.items.length > 0) { %>
-                                        <% let item = order.items[0]; %>
-                                        <% if (item.status === 'Delivered') { %>
-                                            <span class="badge badge-pill badge-soft-success"><%= item.status %></span>
-                                        <% } else { %>
-                                            <span class="badge badge-pill badge-soft-danger"><%= item.status %></span>
-                                        <% } %>
-                                    <% } %>
-                                </td>
-                                <td>
-                                    <% if (order.items && order.items.length > 0) { %>
-                                        <% let item = order.items[0]; %>
-                                        <p><%= item.paymentMethod %></p>
-                                    <% } %>
-                                </td>
-                            </tr>
-                        <% } %>
-                        
-                      <% });
-                  }); %>
+                  <% orders.forEach((order) => { %>
+                        <tr>
+                            <td><%= order._id %></td>
+                            <td><%= order.user.name %></td>
+                            <td><%= new Date(order.orderDate).toLocaleDateString() %></td>
+                            <td><%= new Date(order.deliveryDate).toLocaleDateString() %></td>
+                            <td><%= order.totalAmount %></td>
+                            <td><%= order.status %></td>
+                            <td class="text-center"><%= order.items.length %></td>
+                            <td><%= order.paymentMethod %></td>
+                        </tr>
+                  <% }); %>
               </tbody>
           </table>
       </div> <!-- card-body end// -->
@@ -113,39 +93,6 @@
 <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/jquery.dataTables.min.css">
 <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.3/html2pdf.bundle.min.js"></script>
-
-<script>
-    document.getElementById("pdfButton").addEventListener("click", function () {
-       
-        const elementToExport = document.querySelector(".card-body");
-
-        
-        const options = {
-            margin: 1, 
-            filename: 'SalesReport.pdf',
-            image: { type: 'jpeg', quality: 0.98 },
-            html2canvas: { scale: 2, logging: true, dpi: 192, letterRendering: true },
-            jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
-        };
-
-       
-        html2pdf().set(options).from(elementToExport).save();
-    });
-
-   
-    function printContent() {
-        window.print();
-    }
-</script>
-
-
-
-        
-<script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/1.3.8/FileSaver.min.js"></script>
-<!-- xlsx.core.min.js -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.4/xlsx.core.min.js"></script>
-
 
 <script>
     $(document).ready(function () {
@@ -155,6 +102,6 @@
             "pageLength": 7
         });
     });
-  </script>
+</script>
 
 <%- include('../layouts/adminFooter.ejs') %>

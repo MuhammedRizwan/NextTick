@@ -1,293 +1,221 @@
 <%- include('../layouts/userHeader.ejs') %>
 
+<div class="col-md-4 mt-2">
+    <a href="/orderDetails/<%= order._id %>/download-pdf" class="btn btn-secondary print">
+        <i class="icon material-icons md-print"></i> Download PDF
+    </a>
+</div>
+<br>
+<br>
 
-    </div>
-    </div>
-    </div>
-    <div class="col-md-4 mt-2"> <!-- Adjust the margin-top as needed -->
-        <button onclick="printContent()" class="btn btn-secondary print">
-            <i class="icon material-icons md-print"></i> Download PDF
-        </button>
-    </div>
-    <br>
-    <br>
-
-    <section class="content-main">
-        <style>
-            .content-header {
-              display: flex;
-              justify-content: center; /* Center horizontally */
-              align-items: center; /* Center vertically */
-              height: 100px; /* Adjust based on your needs */
-            }
-            
-            .content-header div {
-              text-align: center; /* Center text for inner div if needed */
-            }
-          </style>
-          
-          <div class="content-header">
-            <div>
-              <h5 class="content-title card-title">ORDER DETAILS</h5>
-            </div>
-          </div>
-          
+<section class="content-main">
+    <style>
+        .content-header {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100px;
+        }
         
-        
-        <div class="card">
-            <header class="card-header">
-                <div class="row align-items-center">
-                    <div class="col-lg-6 col-md-6 mb-lg-0 mb-15">
-                        <small class="text-muted">Order ID: <%= order.orderId %></small><br>
-                        <small class="text-muted">Order Date:</small><br>
-                        <span>
-                            <i class="material-icons md-calendar_today"></i> 
-                            <b><%= new Date(order.orderDate).toLocaleDateString('en-US', { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', hour12: true }) %></b>
-                        </span> <br>
-                       
-                    </div>
-                    <div class="col-lg-6 col-md-6 mb-lg-0 mb-15">
-                        
-                        <% if (order.status !== 'failed') { %>
-                            <small class="text-muted">Delivery Date:</small><br>
-                            <span>
-                                <i class="material-icons md-local_shipping"></i> 
-                                <b><%= new Date(order.deliveryDate).toLocaleDateString('en-US', { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', hour12: true }) %></b>
-                            </span> <br>
-                        <% } %>
-                    </div>
-                    
-                    
-                    
-                    
-                    <div class="col-lg-6 col-md-6 ms-auto text-md-end">
+        .content-header div {
+            text-align: center;
+        }
+    </style>
 
+    <div class="content-header">
+        <div>
+            <h5 class="content-title card-title">ORDER DETAILS</h5>
+        </div>
+    </div>
 
-                        <!-- <a class="btn btn-secondary print ms-2" href="#"><i class="icon material-icons md-print"></i></a> -->
-                    </div>
+    <div class="card">
+        <header class="card-header">
+            <div class="row align-items-center">
+                <div class="col-lg-6 col-md-6 mb-lg-0 mb-15">
+                    <small class="text-muted">Order ID: <%= order.orderId %></small><br>
+                    <small class="text-muted">Order Date:</small><br>
+                    <span>
+                        <i class="material-icons md-calendar_today"></i>
+                        <b><%= new Date(order.orderDate).toLocaleDateString('en-US', { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', hour12: true }) %></b>
+                    </span> <br>
                 </div>
-            </header>
-            <div class="card-body">
-                <div class="row mb-50 mt-20 order-info-wrap">
-                    <div class="col-md-4">
-                        <article class="icontext align-items-start">
-                            <span class="icon icon-sm rounded-circle bg-primary-light">
-                                <i class="text-primary material-icons md-person"></i>
-                            </span>
-                            <div class="text">
-                                <h6 class="mb-1">Customer</h6>
-                                <p class="mb-1">
-                                    <%=order.user.name %> <br>
-                                        <%=order.user.mobile %>
-                                </p>
-                                <br>
-                              
-                            </div>
-                        </article>
-                    </div>
-                    <div class="col-md-4">
-                        <article class="icontext align-items-start">
-                            <span class="icon icon-sm rounded-circle bg-primary-light">
-                                <i class="text-primary material-icons md-local_shipping"></i>
-                            </span>
-                            <div class="text">
-                                <h6 class="mb-1">Order info</h6>
-                                <p class="mb-1">
-                                    Shipping: Fargo express <br> Pay method: <%=order.paymentMethod %> <br> Status:
-                                        <%=order.status %>
-                                </p>
-                               
-                            </div>
-                        </article>
-                    </div>
-                    <div class="col-md-4">
+                <div class="col-lg-6 col-md-6 mb-lg-0 mb-15">
+                    <% if (order.status !== 'failed') { %>
+                        <small class="text-muted">Delivery Date:</small><br>
+                        <span>
+                            <i class="material-icons md-local_shipping"></i>
+                            <b><%= new Date(order.deliveryDate).toLocaleDateString('en-US', { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', hour12: true }) %></b>
+                        </span> <br>
+                    <% } %>
+                </div>
+            </div>
+        </header>
+        <div class="card-body">
+            <div class="row mb-50 mt-20 order-info-wrap">
+                <div class="col-md-4">
+                    <article class="icontext align-items-start">
+                        <span class="icon icon-sm rounded-circle bg-primary-light">
+                            <i class="text-primary material-icons md-person"></i>
+                        </span>
+                        <div class="text">
+                            <h6 class="mb-1">Customer</h6>
+                            <p class="mb-1">
+                                <%= order.user.name %> <br>
+                                <%= order.user.mobile %>
+                            </p>
+                            <br>
+                        </div>
+                    </article>
+                </div>
+                <div class="col-md-4">
+                    <article class="icontext align-items-start">
+                        <span class="icon icon-sm rounded-circle bg-primary-light">
+                            <i class="text-primary material-icons md-local_shipping"></i>
+                        </span>
+                        <div class="text">
+                            <h6 class="mb-1">Order info</h6>
+                            <p class="mb-1">
+                                Shipping: Fargo express <br> Pay method: <%= order.paymentMethod %> <br> Status: <%= order.status %>
+                            </p>
+                        </div>
+                    </article>
+                </div>
+                <div class="col-md-4">
+                    <article class="icontext align-items-start">
+                        <span class="icon icon-sm rounded-circle bg-primary-light">
+                            <i class="text-primary material-icons md-place"></i>
+                        </span>
+                        <div class="text">
+                            <h6 class="mb-1">Deliver to</h6>
+                            <p class="mb-1">
+                                City: <%= order.address.city %>, <%= order.address.street %> <br>
+                                <%= order.address.houseName %> <br>
+                                <%= order.address.pincode %>
+                            </p>
+                        </div>
+                    </article>
+                </div>
+                <div class="col-md-4">
+                    <% if (order.coupon) { %>
                         <article class="icontext align-items-start">
                             <span class="icon icon-sm rounded-circle bg-primary-light">
                                 <i class="text-primary material-icons md-place"></i>
                             </span>
                             <div class="text">
-                                <h6 class="mb-1">Deliver to</h6>
+                                <h6 class="mb-1">Coupon Details</h6>
                                 <p class="mb-1">
-                                    City: <%=order.address.city %>, <%=order.address.street %> <br>
-                                    <%=order.address.houseName %> <br>
-                                    <%=order.address.pincode %>
+                                    Coupon Name: <%= order.coupon %><br>
                                 </p>
-                               
                             </div>
-                        
                         </article>
-                    </div>
-                    <div class="col-md-4">
-                       
-                        <% if (order.coupon) { %><!-- Check if coupon exists -->
-                            <article class="icontext align-items-start">
-                                <span class="icon icon-sm rounded-circle bg-primary-light">
-                                    <i class="text-primary material-icons md-place"></i>
-                                </span>
-                               
-                                <div class="text">
-                                    <h6 class="mb-1">Coupon Details</h6>
-                                    
-                                        <p class="mb-1">
-                                            Coupon Name: <%= order.coupon %><br>
-                                            
-                                           
-                                        </p> 
-                                    
-                                </div>
-                                
-                            </article>
-                        <% } else { %>
-                            <p>No coupons Added</p>
-                        <% } %>
-                    </div>
-                    
-
+                    <% } else { %>
+                        <p>No coupons Added</p>
+                    <% } %>
                 </div>
-                <div class="row">
-                    <div class="col-lg-11">
-                        <div class="table-responsive">
-                            <table class="table">
-                                <thead>
+            </div>
+            <div class="row">
+                <div class="col-lg-11">
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th width="40%">Product</th>
+                                    <th width="20%">Unit Price</th>
+                                    <th width="20%">Quantity</th>
+                                    <th width="20%" class="text-end">Total</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <% let subtotal = 0; order.items.forEach(function(item) { 
+                                    let total = item.product.discount_price * item.quantity; 
+                                    subtotal += total; %>
                                     <tr>
-                                        <th width="40%">Product</th>
-                                        <th width="20%">Unit Price</th>
-                                        <th width="20%">Quantity</th>
-                                        <th width="20%" class="text-end">Total</th>
+                                        <td>
+                                            <a class="itemside" href="/singleProduct/<%= item.product._id %>">
+                                                <div class="left">
+                                                    <img src="/admin-assets/imgs/productIMG/<%= item.product.image[0] %>"
+                                                        width="40" height="40" class="img-xs" alt="Item">
+                                                </div>
+                                                <div class="info">
+                                                    <%= item.product.name %>
+                                                </div>
+                                            </a>
+                                        </td>
+                                        <td>
+                                            ₹<%= item.product.discount_price %>
+                                        </td>
+                                        <td>
+                                            <%= item.quantity %>
+                                        </td>
+                                        <td class="text-end">
+                                            ₹<%= total %>
+                                        </td>
                                     </tr>
-                                </thead>
-                                <tbody>
-                                    <% let subtotal=0; order.items.forEach(function(item) { let
-                                        total=item.product.discount_price * item.quantity; subtotal +=total; %>
-                                        <tr>
-                                            <td>
-                                                <a class="itemside" href="/singleProduct/<%= item.product._id %>">
-
-                                                    <div class="left">
-                                                        <img src="/admin-assets/imgs/productIMG/<%=item.product.image[0]%>"
-                                                            width="40" height="40" class="img-xs" alt="Item">
+                                <% }) %>
+                                <tr>
+                                    <td colspan="4">
+                                        <article class="float-end">
+                                            <dl class="dlist">
+                                                <dt>Subtotal:</dt>
+                                                <dd>₹<%= subtotal %></dd>
+                                            </dl>
+                                            <dl class="dlist">
+                                                <dt>Shipping cost:</dt>
+                                                <dd>₹0.00</dd>
+                                            </dl>
+                                            <dl class="dlist">
+                                                <dt>Grand total:</dt>
+                                                <dd><b class="h5">₹<%= subtotal %></b></dd>
+                                            </dl>
+                                            <dl class="dlist">
+                                                <dt>Status:</dt>
+                                                <dd><%= order.status %></dd>
+                                                <dd>
+                                                    <span class="badge rounded-pill alert-success text-success">Payment done</span>
+                                                </dd>
+                                            </dl>
+                                            <div class="card-footer p-4">
+                                                <div class="d-flex justify-content-center align-items-center">
+                                                    <h5 class="fw-normal mb-0"></h5>
+                                                    <div class="mx-2">
+                                                        <div class="border-start h-100"></div>
                                                     </div>
-                                                    <div class="info">
-                                                        <%=item.product.name %>
+                                                    <div>
+                                                        <% if (order.status === 'Pending' || order.status === 'Shipped') { %>
+                                                            <button class="btn btn-outline-danger" onclick="cancelOrder('<%= order._id %>')">
+                                                                <i class="text-muted material-icons md-cancel"></i>Cancel
+                                                            </button>
+                                                        <% } else if (order.status === 'Delivered') { %>
+                                                            <% if (order.status !== 'Return Successful') { %>
+                                                                <a class="btn btn-outline-dark" href="/return?orderId=<%= order._id %>">
+                                                                    <i class="text-muted material-icons md-undo"></i>Return
+                                                                </a>
+                                                            <% } %>
+                                                        <% } %>
+                                                        <% if (order.status === 'failed') { %>
+                                                            <a class="btn btn-outline-success" href="/checkout?orderId=<%= order._id %>">
+                                                                <i class="material-icons md-replay"></i> Retry Payment
+                                                            </a>
+                                                        <% } %>
                                                     </div>
-                                                </a>
-                                            </td>
-                                            <td>
-                                                ₹<%=item.product.discount_price %>
-                                            </td>
-                                            <td>
-                                                <%=item.quantity %>
-                                            </td>
-                                            <td class="text-end">
-                                                ₹<%= total %>
-                                            </td>
-                                        </tr>
-                                        <% }) %>
-                                            <tr>
-                                                <td colspan="4">
-                                                    <article class="float-end">
-                                                        <dl class="dlist">
-                                                            <dt>Subtotal:</dt>
-                                                            <dd>₹<%= subtotal %>
-                                                            </dd>
-                                                        </dl>
-                                                        <dl class="dlist">
-                                                            <dt>Shipping cost:</dt>
-                                                            <dd>₹0.00</dd>
-                                                        </dl>
-                                                        <dl class="dlist">
-                                                            <dt>Grand total:</dt>
-                                                            <dd> <b class="h5">₹<%= subtotal %></b> </dd>
-                                                        </dl>
-                                                        <dl class="dlist">
-                                                            <dt>Status:</dt>
-                                                            <dd>
-                                                                <%=order.status %>
-                                                            </dd>
-                                                            <dd>
-                                                                <span
-                                                                    class="badge rounded-pill alert-success text-success">Payment
-                                                                    done</span>
-                                                            </dd>
-                                                        </dl>
-                                                        <div class="card-footer p-4">
-                                                            <div class="d-flex justify-content-center align-items-center">
-                                                                <h5 class="fw-normal mb-0">
-                                                                </h5>
-                                                                <div class="mx-2">
-                                                                    <div class="border-start h-100"></div>
-                                                                </div>
-                                                                <div>
-                                                                    <% if (order.status === 'Pending' || order.status === 'Shipped') { %>
-                                                                        <button class="btn btn-outline-danger" onclick="cancelOrder('<%= order._id %>')">
-                                                                            <i class="text-muted material-icons md-cancel"></i>Cancel
-                                                                        </button>
-                                                                    <% } else if (order.status === 'Delivered') { %>
-                                                                        <% if (order.status !== 'Return Successful') { %>
-                                                                            <a class="btn btn-outline-dark" href="/return?orderId=<%= order._id %>">
-                                                                                <i class="text-muted material-icons md-undo"></i>Return
-                                                                            </a>
-                                                                        <% } %>
-                                                                    <% } %>
-                                                                    <% if (order.status === 'failed') { %>
-                                                                        <!-- Retry Payment Button -->
-                                                                        <a class="btn btn-outline-success" href="/checkout?orderId=<%= order._id %>">
-                                                                            <i class="material-icons md-replay"></i> Retry Payment
-                                                                        </a>
-                                                                    <% } %>
-                                                                    
-                                                                    
-                                                                    
-                                                                    
-
-                                                                    
-                                                                    
-                                                                </div>
-                                                            </div>
-                                                        </div
-                                                    </article>
-                                                </td>
-                                            </tr>
-                                </tbody>
-                            </table>
-                        </div> <!-- table-responsive// -->
+                                                </div>
+                                            </div>
+                                        </article>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
-
-
                 </div>
             </div>
         </div>
     </section>
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.3/html2pdf.bundle.min.js"></script>
-    <script>
-        document.getElementById("pdfButton").addEventListener("click", function () {
-           
-            const elementToExport = document.querySelector(".card-body");
-    
-            
-            const options = {
-                margin: 1, 
-                filename: 'SalesReport.pdf',
-                image: { type: 'jpeg', quality: 0.98 },
-                html2canvas: { scale: 2, logging: true, dpi: 192, letterRendering: true },
-                jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
-            };
-    
-           
-            html2pdf().set(options).from(elementToExport).save();
-        });
-    
-       
-        function printContent() {
-            window.print();
-        }
-    </script>
-    
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
     <script>
         function cancelOrder(orderId) {
-            console.log(orderId);
             Swal.fire({
                 icon: 'warning',
                 title: 'Cancel Order',
@@ -310,15 +238,12 @@
                         .then(response => response.json())
                         .then(data => {
                             if (data.success) {
-                                console.log(data);
-                                window.location.href = '/orderSuccess'
+                                window.location.href = '/orderSuccess';
                             } else {
-                                // Handle the error case here if needed.
                                 console.log('Error: An error occurred while cancelling the order.');
                             }
                         })
                         .catch(error => {
-                            // Handle the fetch error here if needed.
                             console.log('Error: An error occurred while making the fetch request.');
                         });
                 }
@@ -327,7 +252,6 @@
     </script>
 
     <script>
-
         function orderReturn(orderId) {
             const returnReasons = [
                 'Item damaged',
@@ -340,12 +264,12 @@
             Swal.fire({
                 title: 'Return Order',
                 html: `
-  <label for="reason">Select a reason for return:</label>
-  <select id="reason" class="swal2-select" required>
-    <option value="" disabled selected>Select a reason</option>
-    ${returnReasons.map(reason => `<option value="${reason}">${reason}</option>`).join('')}
-  </select>
-`,
+                    <label for="reason">Select a reason for return:</label>
+                    <select id="reason" class="swal2-select" required>
+                        <option value="" disabled selected>Select a reason</option>
+                        ${returnReasons.map(reason => `<option value="${reason}">${reason}</option>`).join('')}
+                    </select>
+                `,
                 showCancelButton: true,
                 cancelButtonText: 'Cancel',
                 confirmButtonText: 'Return Order',
@@ -359,36 +283,27 @@
             }).then((result) => {
                 if (result.isConfirmed) {
                     const selectedReason = document.getElementById('reason').value;
-                    // Perform the return order action here
                     fetch('/return', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
                         },
-                        body: JSON.stringify({ orderId, selectedReason }), // Include selectedReason
+                        body: JSON.stringify({ orderId, selectedReason }),
                     })
                         .then(response => response.json())
                         .then(data => {
-                            console.log(data)
                             if (data.success) {
-                                console.log(data);
                                 window.location.href = '/orderSuccess';
                             } else {
-                                // Handle the error case here if needed.
-                                // window.location.href = '/404';
                                 console.log('Error: An error occurred while returning the order.');
                             }
                         })
                         .catch(error => {
-                            // Handle any fetch-related errors here.
-                            //   window.location.href = '/404';
                             console.log('Error: An error occurred while making the fetch request.');
                         });
                 }
             });
         }
-
     </script>
 
-
-    <%- include('../layouts/userFooter.ejs') %>
+<%- include('../layouts/userFooter.ejs') %>

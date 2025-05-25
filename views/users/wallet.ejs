@@ -1,140 +1,284 @@
+<style>
+    /* Wallet Card Styling */
+    .wallet-card {
+        width: 100%;
+        padding: 30px;
+        border-radius: 15px;
+        background: linear-gradient(135deg, #f5f7fa 0%, #e4e7eb 100%); /* Subtle gradient */
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        animation: fadeIn 0.5s ease-in-out; /* Fade-in animation */
+    }
+
+    .wallet-card:hover {
+        transform: scale(1.02); /* Slight scale-up on hover */
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15); /* Enhanced shadow on hover */
+    }
+
+    .wallet-card i {
+        font-size: 60px;
+        color: green; /* Blue wallet icon */
+        margin-bottom: 15px;
+    }
+
+    .wallet-card h3 {
+        font-size: 24px;
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 10px;
+    }
+
+    .wallet-card p {
+        font-size: 32px;
+        font-weight: bold;
+        color: green; /* Blue for balance */
+        margin: 0;
+    }
+
+    /* Transaction Table Styling */
+    .table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0 10px; /* Space between rows */
+        background: #fff;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        border-radius: 10px;
+        overflow: hidden;
+    }
+
+    .table thead th {
+        background: #f8f9fa;
+        color: #333;
+        font-weight: 600;
+        padding: 15px;
+        text-align: center;
+        border-bottom: 2px solid #e9ecef;
+    }
+
+    .table tbody tr {
+        background: #fff;
+        transition: background 0.3s ease, transform 0.3s ease;
+        animation: fadeIn 0.5s ease-in-out;
+    }
+
+    .table tbody tr:hover {
+        background: #f8f9fa; /* Light gray on hover */
+        transform: translateY(-2px); /* Slight lift on hover */
+    }
+
+    .table tbody td {
+        padding: 15px;
+        text-align: center;
+        vertical-align: middle;
+        border-bottom: 1px solid #e9ecef;
+        color: #555;
+    }
+
+    /* Transaction Type Badges */
+    .badge-credit {
+        background-color: #28a745 !important; /* Green for credit */
+        padding: 5px 10px;
+        border-radius: 12px;
+        font-size: 12px;
+        font-weight: 500;
+    }
+
+    .badge-debit {
+        background-color: #dc3545 !important; /* Red for debit */
+        padding: 5px 10px;
+        border-radius: 12px;
+        font-size: 12px;
+        font-weight: 500;
+    }
+
+    /* No Data Message */
+    .no-data {
+        font-size: 16px;
+        color: #888;
+        padding: 20px;
+        text-align: center;
+    }
+
+    /* Fade-in Animation */
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* Responsive Adjustments */
+    @media (max-width: 768px) {
+        .wallet-card {
+            max-width: 100%;
+            padding: 20px;
+        }
+
+        .wallet-card i {
+            font-size: 50px;
+        }
+
+        .wallet-card h3 {
+            font-size: 20px;
+        }
+
+        .wallet-card p {
+            font-size: 28px;
+        }
+
+        .table thead th,
+        .table tbody td {
+            font-size: 14px;
+            padding: 10px;
+        }
+    }
+
+    @media (max-width: 576px) {
+        .wallet-card i {
+            font-size: 40px;
+        }
+
+        .wallet-card h3 {
+            font-size: 18px;
+        }
+
+        .wallet-card p {
+            font-size: 24px;
+        }
+
+        .table thead th,
+        .table tbody td {
+            font-size: 12px;
+            padding: 8px;
+        }
+    }
+</style>
+
 <%- include('../layouts/userHeader.ejs') %>
 
 <main class="main">
-  <div class="page-header breadcrumb-wrap">
-      <div class="container">
-          <div class="breadcrumb">
-              <a href="index.html" rel="nofollow">Home</a>
-              <span></span> Pages
-              <span></span> Account
-          </div>
-      </div>
-  </div>
+    <div class="page-header breadcrumb-wrap">
+        <div class="container">
+            <div class="breadcrumb">
+                <a href="index.html" rel="nofollow">Home</a>
+                <span></span> Pages
+                <span></span> Account
+            </div>
+        </div>
+    </div>
 
-  <section class="pt-150 pb-150">
-  
-      <div class="container">
-    
-          <div class="row">
-              <div class="col-lg-12 m-auto">
-          
-                  <div class="row">
-                      <div class="col-md-3">
-                          <div class="dashboard-menu">
-                              <ul class="nav flex-column" role="tablist">
-                                 
-                                  <li class="nav-item">
-                                    <a class="nav-link"   href="/userprofile" ><i class="fi-rs-user mr-10"></i>Account details</a>
-                                </li>
-                                <li class="nav-item">
-                                  <a class="nav-link" href="/userAddress"><i class="fi-rs-marker mr-10"></i>My Address</a>
-                              </li>
-                                  <li class="nav-item">
-                                      <a class="nav-link"  href="/orderSuccess"  ><i class="fi-rs-shopping-bag mr-10"></i>Orders</a>
-                                  </li>
-                                  <li class="nav-item">
-                                    <a class="nav-link" href="/wallet"><i class="fi-rs-shopping-bag mr-10"></i>Wallets</a>
-                                  </li>
-                                  <li class="nav-item">
-                                    <a class="nav-link" href="/wishlist"><i class="fi-rs-heart mr-10"></i>Your List</a>
-                                  </li>
-
-                                  <li class="nav-item">
-                                    <a class="nav-link"  href="/coupon" ><i class="fi-rs-shopping-bag mr-10"></i>coupon</a>
-                                  </li>
-                             
-                               
-                                  <li class="nav-item">
-                                    <a class="nav-link" href="/logout"><i class="fi-rs-sign-out mr-10"></i>Logout</a>
-                                  </li>
-                              </ul>
-                          </div>
-                      </div>
-                      <div class="col-md-9">
-                        <div class="row">
-
-
-                            <div class="col-md-8 col-lg-10">
-                                <div class="tab-content d-flex justify-content-center align-items-center">                           
-        
-                                    
-        
-                                  <div class="card" style="width: 100vw;">
-                                    <div class="card-body d-flex flex-column align-items-center justify-content-center">
-                                        <i class="fa-solid fa-wallet" style="font-size: 50px;"></i><h3>Wallet Balance</h3>
-                                    
-                                        <p style="font-size: 30px;">₹&nbsp; <%= wallet.walletBalance %></p>
-                                    </div>
-                      
-                                  </div>
-                                    
-                                </div>
-                                <div class="mt-5">
-                                    <table id="wallet" class="table">
-                                        <thead>
-                                            <tr>
-                                                <th scope="col">Transaction Type</th>
-                                                <th scope="col">Date</th>
-                                                <th scope="col">Amount</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-
-                                            <% if (wallet != null && wallet.transaction != null) { %>
-                                                <% wallet.transaction.forEach(transactions => { %>
-                                                    <tr>
-                                                        <td>
-                                                            <span class="badge badge-pill bg-success"><%= transactions.type %></span>
-                                                        </td>
-                                                        <td><%= new Date(transactions.date).toLocaleDateString() %></td>
-                                                        <td>
-                                                            <span class=""> <%= transactions.amount %></span>
-                                                        </td>
-                                                    </tr>
-                                                <% }); %>
-                                            <% } else { %>
-                                                <tr><td class="text-center" colspan="3">no wallet data</td></tr>
-                                            <% } %>
-                                        </tbody>
-                                    </table>
-                                    
-                                </div>
-                            
+    <section class="pt-50 pb-50"> <!-- Reduced padding for better spacing -->
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-12 m-auto">
+                    <div class="row">
+                        <!-- Sidebar -->
+                        <div class="col-md-3 col-lg-3 mb-4">
+                            <div class="dashboard-menu">
+                                <ul class="nav flex-column" role="tablist">
+                                    <li class="nav-item">
+                                        <a class="nav-link" href="/userprofile"><i class="fi-rs-user mr-10"></i>Account details</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link" href="/userAddress"><i class="fi-rs-marker mr-10"></i>My Address</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link" href="/orderSuccess"><i class="fi-rs-shopping-bag mr-10"></i>Orders</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link active" href="/wallet"><i class="fi-rs-shopping-bag mr-10"></i>Wallets</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link" href="/wishlist"><i class="fi-rs-heart mr-10"></i>Your List</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link" href="/coupon"><i class="fi-rs-shopping-bag mr-10"></i>Coupon</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link" href="/logout"><i class="fi-rs-sign-out mr-10"></i>Logout</a>
+                                    </li>
+                                </ul>
                             </div>
-                          </div>
-                           
-                                 
-                                
-                                     
-                                      
-                                       
-                                 
-                                  </div>
-                       
-                           
-                         
-                            
-                     
-                  </div>
-              </div>
-          </div>
-          
-      </div>
-  </section>
-</main>
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-  <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/jquery.dataTables.min.css">
-  <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
-  <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+                        </div>
 
-  <script>
+                        <!-- Wallet Content -->
+                        <div class="col-md-9 col-lg-9">
+                            <div class="row justify-content-center">
+                                <div class="col-md-10 col-lg-12 mb-4">
+                                    <div class="wallet-card card">
+                                        <div class="card-body d-flex flex-column align-items-center justify-content-center">
+                                            <i class="fa-solid fa-wallet"></i>
+                                            <h3>Wallet Balance</h3>
+                                            <p>₹ <%= wallet?.walletBalance?.toFixed(2) || '0.00' %></p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="mt-4">
+                                <table id="wallet" class="table" role="grid" aria-describedby="wallet_info">
+                                    <thead>
+                                        <tr>
+                                            <th scope="col">Transaction Type</th>
+                                            <th scope="col">Date</th>
+                                            <th scope="col">Amount</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <% if (wallet && wallet.transaction && wallet.transaction.length > 0) { %>
+                                            <% wallet.transaction.forEach(transactions => { %>
+                                                <tr>
+                                                    <td>
+                                                        <span class="badge badge-pill <%= transactions.type === 'credit' ? 'badge-credit' : 'badge-debit' %>">
+                                                            <%= transactions.type %>
+                                                        </span>
+                                                    </td>
+                                                    <td><%= new Date(transactions.date).toLocaleDateString() %></td>
+                                                    <td>
+                                                        <span>₹ <%= transactions.amount.toFixed(2) %></span>
+                                                    </td>
+                                                </tr>
+                                            <% }); %>
+                                        <% } else { %>
+                                            <tr>
+                                                <td class="no-data" colspan="3">No Wallet Data Available</td>
+                                            </tr>
+                                        <% } %>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</main>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/jquery.dataTables.min.css">
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+
+<script>
     $(document).ready(function () {
         new DataTable('#wallet', {
-            order: [[0, 'desc']],
-            "lengthMenu": [7, 20, 30, 50],
-            "pageLength": 7
+            order: [[1, 'desc']], // Sort by date (column 1) in descending order
+            lengthMenu: [7, 20, 30, 50],
+            pageLength: 7,
+            language: {
+                emptyTable: "No transactions available in wallet"
+            }
         });
     });
-  </script>
+</script>
 
 <%- include('../layouts/userFooter.ejs') %>

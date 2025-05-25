@@ -10,7 +10,10 @@ const mongoose = require("mongoose");
 const instance = require("../config/razorPayConfig");
 const STATUSCODE = require("../config/statusCode");
 const RESPONSE = require("../config/responseMessage");
-const { calculateSubtotal, calculateProductTotal } = require("../utils/cartSum");
+const PDFDocument = require('pdfkit');
+const fs = require('fs');
+const path = require('path');
+const { calculateSubtotal, calculateProductTotal, calculateDiscountedTotal } = require("../utils/cartSum");
 
 function generateRandomNumberWithPrefix() {
   const prefix = "ODR";
@@ -87,21 +90,21 @@ const cancelOrder = async (req, res) => {
       return res.status(STATUSCODE.NOT_FOUND).json({ message: RESPONSE.ORDER_NOT_FOUND, success: false });
     }
 
-    if (order.orderStatus === "Cancelled") {
+    if (order.status === "Cancelled") {
       return res.status(STATUSCODE.BAD_REQUEST).json({ message: RESPONSE.ALREADY_CANCELLED, success: false });
     }
 
-    if (order.orderStatus === "Delivered") {
+    if (order.status === "Delivered") {
       return res.status(STATUSCODE.BAD_REQUEST).json({ message: RESPONSE.DELIVERED_ORDER, success: false });
     }
 
     const currentDate = new Date();
-    const daysDifference = Math.floor((currentDate - order.createdAt) / (1000 * 60 * 60 * 24));
+    const daysDifference = Math.floor((currentDate - order.orderDate) / (1000 * 60 * 60 * 24));
     if (daysDifference > 10) {
       return res.status(STATUSCODE.BAD_REQUEST).json({ message: RESPONSE.CANCEL_TIME_EXCEEDED, success: false });
     }
 
-    if (order.paymentMethod === "Online Payment") {
+    if (order.paymentMethod === "Online Payment" || order.paymentMethod === "Wallet") {
       const userId = order.user;
       const refundedAmount = order.totalAmount;
       let userWallet = await Wallet.findOne({ user: userId });
@@ -120,7 +123,7 @@ const cancelOrder = async (req, res) => {
     }
 
     for (const item of order.items) {
-      const productData = await Product.findById(item.product._id);
+      const productData = await Product.findById(item.product);
       if (productData) {
         productData.stock += item.quantity;
         await productData.save();
@@ -128,6 +131,7 @@ const cancelOrder = async (req, res) => {
     }
 
     order.status = "Cancelled";
+    order.paymentStatus = "Refunded"; // Update top-level paymentStatus
     await order.save();
 
     res.status(STATUSCODE.OK).json({ success: true, message: "Order cancelled successfully" });
@@ -208,7 +212,11 @@ const checkOutPost = async (req, res) => {
     const { address, paymentMethod, couponCode, paymentStatus } = req.body;
 
     if (orderId) {
-      await Order.findByIdAndUpdate(orderId, { status: "success" }, { new: true });
+      await Order.findByIdAndUpdate(
+        orderId,
+        { paymentStatus: paymentStatus || "success" }, 
+        { new: true }
+      );
       return res.status(STATUSCODE.OK).json({ success: true, message: RESPONSE.ORDER_PLACED });
     }
 
@@ -272,6 +280,7 @@ const checkOutPost = async (req, res) => {
         totalAmount,
         coupon: couponCode,
         paymentMethod,
+        paymentStatus: "success", 
         items: cartItems.map((cartItem) => ({
           product: cartItem.product._id,
           quantity: cartItem.quantity,
@@ -284,7 +293,6 @@ const checkOutPost = async (req, res) => {
               ? cartItem.product.discount_price
               : cartItem.product.price,
           status: "Confirmed",
-          paymentStatus: "success",
         })),
       });
     } else if (paymentMethod === "onlinePayment") {
@@ -297,7 +305,7 @@ const checkOutPost = async (req, res) => {
         deliveryDate: new Date(new Date().getTime() + 5 * 24 * 60 * 60 * 1000),
         totalAmount: req.body.amount,
         paymentMethod: "Online Payment",
-        status: paymentStatus || "pending",
+        paymentStatus: paymentStatus || "success", // Set top-level paymentStatus
         items: cartItems.map((cartItem) => ({
           product: cartItem.product._id,
           quantity: cartItem.quantity,
@@ -306,11 +314,10 @@ const checkOutPost = async (req, res) => {
             cartItem.product.discount_price &&
             cartItem.product.discountStatus &&
             new Date(cartItem.product.discountStart) <= new Date() &&
-            new Date(item.product.discountEnd) >= new Date()
+            new Date(cartItem.product.discountEnd) >= new Date()
               ? cartItem.product.discount_price
               : cartItem.product.price,
           status: "Confirmed",
-          paymentStatus: "success",
         })),
       });
     } else if (paymentMethod === "CashOnDelivery") {
@@ -323,13 +330,13 @@ const checkOutPost = async (req, res) => {
         totalAmount,
         paymentMethod,
         coupon: couponCode,
+        paymentStatus: "Pending", 
         items: cartItems.map((cartItem) => ({
           product: cartItem.product._id,
           quantity: cartItem.quantity,
           size: cartItem.size,
           price: cartItem.product.discount_price || cartItem.product.price,
           status: "Confirmed",
-          paymentStatus: "Pending",
         })),
       });
     } else {
@@ -342,6 +349,7 @@ const checkOutPost = async (req, res) => {
         totalAmount: req.body.amount,
         coupon: couponCode,
         paymentMethod,
+        paymentStatus: "failed", 
         items: cartItems.map((cartItem) => ({
           product: cartItem.product._id,
           quantity: cartItem.quantity,
@@ -354,7 +362,6 @@ const checkOutPost = async (req, res) => {
               ? cartItem.product.discount_price
               : cartItem.product.price,
           status: "Payment Pending",
-          paymentStatus: "failed",
         })),
       });
     }
@@ -527,7 +534,7 @@ const returnOrder = async (req, res) => {
     await userWallet.save();
 
     for (const item of order.items) {
-      const product = await Product.findById(item.product._id);
+      const product = await Product.findById(item.product);
       if (product) {
         product.stock += item.quantity;
         await product.save();
@@ -535,12 +542,169 @@ const returnOrder = async (req, res) => {
     }
 
     order.status = "Return Successful";
-    order.paymentStatus = "Refunded";
     await order.save();
 
     res.status(STATUSCODE.OK).redirect(`/admin/orderDetails?orderId=${orderId}`);
   } catch (error) {
     res.status(STATUSCODE.INTERNAL_SERVER_ERROR).json({ message: RESPONSE.SERVER_ERROR, success: false });
+  }
+};
+
+const downloadOrderPDF = async (req, res) => {
+  try {
+    const orderId = req.params.id;
+    const order = await Order.findById(orderId)
+      .populate("user")
+      .populate({ path: "address", model: "Address" })
+      .populate({ path: "items.product", model: "Product" });
+
+    if (!order) {
+      return res.status(STATUSCODE.NOT_FOUND).send(RESPONSE.ORDER_NOT_FOUND);
+    }
+
+    // Create a new PDF document
+    const doc = new PDFDocument({ margin: 50 });
+    const fileName = `Order_${order.orderId}.pdf`;
+    const filePath = path.join(__dirname, `../public/pdfs/${fileName}`);
+
+
+    const pdfDir = path.join(__dirname, '../public/pdfs');
+    if (!fs.existsSync(pdfDir)) {
+      fs.mkdirSync(pdfDir, { recursive: true });
+    }
+
+    // Pipe the PDF into a writable stream
+    const stream = fs.createWriteStream(filePath);
+    doc.pipe(stream);
+
+    doc.fillColor('#28a745').fontSize(20).text('Order Details', { align: 'center' });
+    doc.moveDown();
+
+    // Order Information
+    doc.fillColor('#000000').fontSize(12);
+    doc.text(`Order ID: ${order.orderId}`);
+    doc.text(`Order Date: ${new Date(order.orderDate).toLocaleDateString('en-US', { 
+      weekday: 'short', year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', hour12: true 
+    })}`);
+    if (order.status !== 'failed') {
+      doc.text(`Delivery Date: ${new Date(order.deliveryDate).toLocaleDateString('en-US', { 
+        weekday: 'short', year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', hour12: true 
+      })}`);
+    }
+    doc.moveDown();
+
+    // Customer Information
+    doc.fillColor('#28a745').fontSize(14).text('Customer', { underline: true });
+    doc.fillColor('#000000').fontSize(12);
+    doc.text(`${order.user.name}`);
+    doc.text(`${order.user.mobile}`);
+    doc.moveDown();
+
+    // Order Info
+    doc.fillColor('#28a745').fontSize(14).text('Order Info', { underline: true });
+    doc.fillColor('#000000').fontSize(12);
+    doc.text(`Shipping: Fargo Express`);
+    doc.text(`Pay Method: ${order.paymentMethod}`);
+    doc.text(`Status: ${order.status}`);
+    doc.moveDown();
+
+    // Delivery Address
+    doc.fillColor('#28a745').fontSize(14).text('Deliver To', { underline: true });
+    doc.fillColor('#000000').fontSize(12);
+    doc.text(`City: ${order.address.city}, ${order.address.street}`);
+    doc.text(`${order.address.houseName}`);
+    doc.text(`${order.address.pincode}`);
+    doc.moveDown();
+
+
+    doc.fillColor('#28a745').fontSize(14).text('Coupon Details', { underline: true });
+    doc.fillColor('#000000').fontSize(12);
+    if (order.coupon) {
+      doc.text(`Coupon Name: ${order.coupon}`);
+    } else {
+      doc.text('No coupons applied');
+    }
+    doc.moveDown();
+
+
+    doc.fillColor('#28a745').fontSize(14).text('Products', { underline: true });
+    doc.moveDown();
+
+
+    const tableTop = doc.y;
+    const col1 = 50;  
+    const col2 = 250; 
+    const col3 = 350; 
+    const col4 = 450; 
+    const rowHeight = 30;
+    const tableWidth = 550;
+
+    doc.fillColor('#28a745').fontSize(12).font('Helvetica-Bold');
+    doc.rect(col1, tableTop, tableWidth, rowHeight).fill('#28a745');
+    doc.fillColor('#ffffff');
+    doc.text('Product', col1 + 5, tableTop + 8, { width: 190, align: 'left' });
+    doc.text('Unit Price', col2 + 5, tableTop + 8, { width: 90, align: 'right' });
+    doc.text('Quantity', col3 + 5, tableTop + 8, { width: 90, align: 'right' });
+    doc.text('Total', col4 + 5, tableTop + 8, { width: 90, align: 'right' });
+
+    // Table Rows
+    let currentY = tableTop + rowHeight;
+    let subtotal = 0;
+    doc.font('Helvetica').fillColor('#000000');
+
+    order.items.forEach((item, index) => {
+      const total = item.product.discount_price * item.quantity;
+      subtotal += total;
+
+      if (currentY + rowHeight > doc.page.height - 50) {
+        doc.addPage();
+        currentY = 50;
+      }
+
+      if (index % 2 === 0) {
+        doc.fillColor('#f8f9fa').rect(col1, currentY, tableWidth, rowHeight).fill();
+      }
+
+      // Draw row content
+      doc.fillColor('#000000');
+      doc.text(item.product.name, col1 + 5, currentY + 8, { width: 190, align: 'left' });
+      doc.text(`₹${item.product.discount_price}`, col2 + 5, currentY + 8, { width: 90, align: 'right' });
+      doc.text(`${item.quantity}`, col3 + 5, currentY + 8, { width: 90, align: 'right' });
+      doc.text(`₹${total}`, col4 + 5, currentY + 8, { width: 90, align: 'right' });
+
+      // Draw row border
+      doc.lineWidth(0.5).rect(col1, currentY, tableWidth, rowHeight).stroke();
+
+      currentY += rowHeight;
+    });
+
+    // Draw table border
+    doc.lineWidth(1).rect(col1, tableTop, tableWidth, currentY - tableTop).stroke();
+
+    // Totals
+    doc.moveDown();
+    doc.fontSize(12).font('Helvetica-Bold').fillColor('#000000');
+    doc.text(`Subtotal: ₹${subtotal}`, 400, currentY + 10, { width: 150, align: 'right' });
+    doc.text('Shipping Cost: ₹0.00', 400, currentY + 30, { width: 150, align: 'right' });
+    doc.text(`Grand Total: ₹${subtotal}`, 400, currentY + 50, { width: 150, align: 'right' });
+    doc.text(`Status: ${order.status}`, 400, currentY + 70, { width: 150, align: 'right' });
+
+    doc.end();
+
+    stream.on('finish', () => {
+      res.download(filePath, fileName, (err) => {
+        if (err) {
+          console.error('Error downloading PDF:', err);
+          res.status(STATUSCODE.INTERNAL_SERVER_ERROR).send(RESPONSE.SERVER_ERROR);
+        }
+        fs.unlink(filePath, (unlinkErr) => {
+          if (unlinkErr) console.error('Error deleting PDF file:', unlinkErr);
+        });
+      });
+    });
+  } catch (error) {
+    console.error('Error generating PDF:', error);
+    res.status(STATUSCODE.INTERNAL_SERVER_ERROR).send(RESPONSE.SERVER_ERROR);
   }
 };
 
@@ -554,4 +718,5 @@ module.exports = {
   razorpayOrder,
   returnOrder,
   userReturn,
+  downloadOrderPDF
 };

@@ -4,6 +4,8 @@ const Transaction = require("../models/transactionModel");
 const dateFun = require("../utils/dateData");
 const STATUSCODE = require("../config/statusCode");
 const RESPONSE = require("../config/responseMessage");
+const PDFDocument = require('pdfkit');
+const fs = require('fs');
 
 const listUserOrders = async (req, res) => {
   try {
@@ -21,8 +23,40 @@ const listUserOrders = async (req, res) => {
       { $unwind: "$user" },
       { $lookup: { from: "addresses", localField: "address", foreignField: "_id", as: "address" } },
       { $unwind: "$address" },
-      { $lookup: { from: "products", localField: "items.product", foreignField: "_id", as: "items.product" } },
-      { $unwind: "$items.product" },
+      {
+        $lookup: {
+          from: "products",
+          localField: "items.product",
+          foreignField: "_id",
+          as: "populatedProducts"
+        }
+      },
+      {
+        $addFields: {
+          items: {
+            $map: {
+              input: "$items",
+              as: "item",
+              in: {
+                $mergeObjects: [
+                  "$$item",
+                  {
+                    product: {
+                      $arrayElemAt: [
+                        "$populatedProducts",
+                        {
+                          $indexOfArray: ["$populatedProducts._id", "$$item.product"]
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        }
+      },
+      { $project: { populatedProducts: 0 } }
     ]);
 
     res.status(STATUSCODE.OK).render("allOrder", { order: orders, currentPage: page, totalPages, admin });
@@ -81,12 +115,12 @@ const orderStatusChange = async (req, res) => {
           await product.save();
         }
       }
-      order.paymentStatus = order.paymentMethod === "Cash On Delivery" ? "Declined" : "Refunded";
+      order.paymentStatus = order.paymentMethod === "CashOnDelivery" ? "Declined" : "Refunded"; 
     }
 
     if (orderStatus === "Delivered") {
       order.deliveryDate = new Date();
-      order.paymentStatus = "Payment Successful";
+      order.paymentStatus = order.paymentMethod === "CashOnDelivery" ? "success" : order.paymentStatus;
     }
 
     order.status = orderStatus;
@@ -110,6 +144,12 @@ const loadSalesReport = async (req, res) => {
   try {
     let query = {};
 
+
+    query.$or = [
+      { status: "Delivered" }, 
+      { paymentStatus: "success" } 
+    ];
+
     if (req.query.startDate && req.query.endDate) {
       const adjustedEndDate = new Date(req.query.endDate);
       adjustedEndDate.setHours(23, 59, 59, 999);
@@ -118,7 +158,7 @@ const loadSalesReport = async (req, res) => {
         $lte: adjustedEndDate,
       };
     } else if (req.query.status === "All") {
-      query["items.status"] = "Delivered";
+      // Already handled by the $or condition above
     } else {
       if (req.query.status === "Daily") {
         query.orderDate = dateFun.getDailyDateRange();
@@ -178,10 +218,97 @@ const transactionList = async (req, res) => {
   }
 };
 
+const downloadSalesReportPDF = async (req, res) => {
+  try {
+    let query = {};
+
+    
+    query.$or = [
+      { status: "Delivered" }, 
+      { paymentStatus: "success" } 
+    ];
+
+    if (req.query.startDate && req.query.endDate) {
+      const adjustedEndDate = new Date(req.query.endDate);
+      adjustedEndDate.setHours(23, 59, 59, 999);
+      query.orderDate = {
+        $gte: new Date(req.query.startDate),
+        $lte: adjustedEndDate,
+      };
+    } else if (req.query.status === "All") {
+    } else {
+      if (req.query.status === "Daily") {
+        query.orderDate = dateFun.getDailyDateRange();
+      } else if (req.query.status === "Weekly") {
+        query.orderDate = dateFun.getWeeklyDateRange();
+      } else if (req.query.status === "Monthly") {
+        query.orderDate = dateFun.getMonthlyDateRange();
+      } else if (req.query.status === "Yearly") {
+        query.orderDate = dateFun.getYearlyDateRange();
+      }
+    }
+
+    const orders = await Order.find(query).populate("user").sort({ orderDate: -1 });
+
+    const totalRevenue = orders.reduce((acc, order) => acc + order.totalAmount, 0);
+    const totalSales = orders.length;
+    const totalProductsSold = orders.reduce((acc, order) => acc + order.items.length, 0);
+
+    const doc = new PDFDocument({ margin: 50 });
+    const filename = 'SalesReport.pdf';
+
+    res.setHeader('Content-disposition', `attachment; filename="${filename}"`);
+    res.setHeader('Content-type', 'application/pdf');
+
+    doc.pipe(res);
+
+    doc.fontSize(20).text('Sales Report', { align: 'center' });
+    doc.moveDown();
+
+    doc.fontSize(14).text(`Total Revenue: ₹ ${totalRevenue.toFixed(2)}`);
+    doc.text(`Total Orders: ${totalSales}`);
+    doc.text(`Total Items Sold: ${totalProductsSold}`);
+    doc.moveDown();
+
+
+    doc.fontSize(12).text('Order ID    Billing Name    Ordered Date    Delivery Date    Total    Status    Payment Method', {
+      underline: true,
+    });
+    doc.moveDown(0.5);
+
+    orders.forEach((order) => {
+      const orderId = order._id.toString();
+      const billingName = order.user?.name || 'N/A';
+      const orderedDate = new Date(order.orderDate).toLocaleDateString();
+      const deliveryDate = new Date(order.deliveryDate).toLocaleDateString();
+      const total = `₹ ${order.totalAmount.toFixed(2)}`;
+      const status = order.status;
+      const itemsCount = order.items.length;
+      const paymentMethod = order.paymentMethod || 'N/A';
+
+      doc.fontSize(10).text(
+        `${orderId.slice(-6).padEnd(10)}  ${billingName.padEnd(20)}  ${orderedDate.padEnd(20)}  ${deliveryDate.padEnd(15)}  ${total.padEnd(10)}  ${status.padEnd(15)}  ${paymentMethod}`
+      );
+    });
+
+    doc.end();
+  } catch (error) {
+    res.status(STATUSCODE.INTERNAL_SERVER_ERROR).send(RESPONSE.ERROR_FETCHING_ORDERS);
+  }
+};
+
 module.exports = {
   listUserOrders,
   listOrderDetails,
   orderStatusChange,
   loadSalesReport,
   transactionList,
+  downloadSalesReportPDF
 };
+
+
+
+
+
+
+
